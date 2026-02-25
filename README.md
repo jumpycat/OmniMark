@@ -28,11 +28,82 @@ python my_trainer.py
 
 
 ### 2. Image Generation
-Pretrained checkpoint: 📥 [Google Drive Link](https://drive.google.com/file/d/1f47kMWH3jfcgwFKhvPGMbOIs_A9W21Fj/view?usp=drive_link). After downloading, place `checkpoint.pth` in the project root directory.
+**Step 1**: Pretrained checkpoint: 📥 [Google Drive Link](https://drive.google.com/file/d/1f47kMWH3jfcgwFKhvPGMbOIs_A9W21Fj/view?usp=drive_link). After downloading, place `checkpoint.pth` in the project root directory.
 
 **Additional requirements:**
 - Stable Diffusion 2 base checkpoint: Download `768-v-ema.ckpt` from [Stability AI](https://huggingface.co/Manojb/stable-diffusion-2-base) and place in `stable-diffusion-2/` directory
 - Configuration files: Ensure you have the required YAML config files in `configs/stable-diffusion/`
+
+**Step 2**: Modify Diffusers StableDiffusionPipeline
+
+To enable watermark-aware decoding in OmniMark, you need to slightly modify the `StableDiffusionPipeline` from the diffusers library.
+
+Specifically, edit the `__call__` function in:
+
+```
+diffusers/pipelines/stable_diffusion/pipeline_stable_diffusion.py
+```
+
+1️⃣ Add New Arguments to `__call__`
+
+Locate the `__call__` function definition and add three new parameters:
+
+```python
+def __call__(
+    self,
+    prompt=None,
+    ...
+    if_wm: bool = False,
+    wm = None,
+    my_decoder = None,
+):
+```
+
+- `if_wm`: Whether to enable watermark-aware decoding  
+- `wm`: The watermark bit sequence  
+- `my_decoder`: The trained watermark-aware decoder  
+
+---
+
+2️⃣ Modify the VAE Decoding Logic
+
+Find the original decoding code:
+
+```python
+image = self.vae.decode(
+    latents / self.vae.config.scaling_factor,
+    return_dict=False,
+    generator=generator
+)[0]
+```
+
+Replace it with the following:
+
+```python
+if if_wm:
+    image = my_decoder(
+        latents / self.vae.config.scaling_factor,
+        wm
+    )
+else:
+    image = self.vae.decode(
+        latents / self.vae.config.scaling_factor,
+        return_dict=False,
+        generator=generator
+    )[0]
+```
+
+ 3️⃣ How It Works
+
+- When `if_wm=False`, the pipeline behaves exactly like standard Stable Diffusion.
+- When `if_wm=True`, the latent features are decoded using the trained watermark decoder instead of the original VAE decoder.
+- The custom decoder must output an image tensor with the same shape as the original VAE decoder output.
+
+⚠️ Important Notes
+- Ensure `my_decoder` is properly loaded before calling the pipeline.
+- The watermark bits (`wm`) must match the trained watermark dimension.
+- This modification does **not** affect standard generation when watermarking is disabled.
+- Tested with Stable Diffusion 2 base (`768-v-ema.ckpt`).
 
 
 Generate watermarked images using the trained model:
@@ -64,7 +135,7 @@ watermark_dim = 48    # Watermark bits (default: 48)
 
 **Important:** The `seed` parameter in generation must match the seed used in extraction to correctly verify the watermark.
 
-### Watermark Extraction
+### 3. Watermark Extraction
 
 Extract and verify watermarks from generated images:
 
