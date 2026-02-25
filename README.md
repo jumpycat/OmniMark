@@ -7,17 +7,6 @@ This repository contains the official code for the paper:
 ## 📦 Repository Overview
 OmniMark is an efficient watermarking framework for Latent Diffusion Models (LDMs) that embeds imperceptible fingerprints into generated images. This repository provides training, generation, and extraction code.
 
-## 🚀 Quick Start
-
-**Download pretrained checkpoint:**
-- 📥 [Google Drive Link](https://drive.google.com/file/d/1f47kMWH3jfcgwFKhvPGMbOIs_A9W21Fj/view?usp=drive_link)
-
-After downloading, place `checkpoint.pth` in the project root directory.
-
-**Additional requirements:**
-- Stable Diffusion 2 base checkpoint: Download `768-v-ema.ckpt` from [Stability AI](https://huggingface.co/Manojb/stable-diffusion-2-base) and place in `stable-diffusion-2/` directory
-- Configuration files: Ensure you have the required YAML config files in `configs/stable-diffusion/`
-
 ## 📋 Usage
 
 ### 1. Training
@@ -39,6 +28,12 @@ python my_trainer.py
 
 
 ### 2. Image Generation
+Pretrained checkpoint: 📥 [Google Drive Link](https://drive.google.com/file/d/1f47kMWH3jfcgwFKhvPGMbOIs_A9W21Fj/view?usp=drive_link). After downloading, place `checkpoint.pth` in the project root directory.
+
+**Additional requirements:**
+- Stable Diffusion 2 base checkpoint: Download `768-v-ema.ckpt` from [Stability AI](https://huggingface.co/Manojb/stable-diffusion-2-base) and place in `stable-diffusion-2/` directory
+- Configuration files: Ensure you have the required YAML config files in `configs/stable-diffusion/`
+
 
 Generate watermarked images using the trained model:
 
@@ -69,7 +64,7 @@ watermark_dim = 48    # Watermark bits (default: 48)
 
 **Important:** The `seed` parameter in generation must match the seed used in extraction to correctly verify the watermark.
 
-### 3. Watermark Extraction
+### Watermark Extraction
 
 Extract and verify watermarks from generated images:
 
@@ -98,6 +93,10 @@ extractor = WatermarkExtractor(
 )
 watermark = extractor.extract_watermark('path/to/image.png')
 ```
+
+
+
+
 
 ## 📝 Notes
 
