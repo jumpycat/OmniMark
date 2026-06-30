@@ -7,6 +7,10 @@ This repository contains the official code for the paper:
 ## 📦 Repository Overview
 OmniMark is an efficient watermarking framework for Latent Diffusion Models (LDMs) that embeds imperceptible fingerprints into generated images. This repository provides training, generation, and extraction code.
 
+### 📢 Updates
+- **[Update]** Uploaded a robustness-enhanced model checkpoint (ckpt). Download it here:
+  [Google Drive](https://drive.google.com/file/d/1JmMFCLSk6ml8FSD7BI0AdAgb6RBIsLIq/view?usp=drive_link)
+  
 ## 📋 Usage
 
 ### 1. Training
